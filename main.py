@@ -18,6 +18,10 @@ imagenet_classes_json = 'map_label.json'
 outdir = './outputs'
 if not os.path.exists(outdir):
     os.mkdir(outdir)
+outsubdir = os.path.join(outdir, f'class_prompts_{str_date_time}')
+if not os.path.exists(outsubdir):
+    os.mkdir(outsubdir)
+out_json = os.path.join(outdir, f"imagenet_prompting_{str_date_time}.json")
 out_json = os.path.join(outdir, f"imagenet_prompting_{str_date_time}.json")
 outstat_json = os.path.join(outdir, f"imagenet_prompting_stats_{str_date_time}.json")
 
@@ -79,9 +83,14 @@ for category_dict in tqdm(category_list.items()):
                 all_results.append(result)
 
     all_responses[category_dict[0]] = all_results
+    out_subjson = os.path.join(outsubdir, f'{category_dict[0]}.json')
+    with open(out_subjson, 'w') as f:
+        json.dump({category_dict[0]: all_results}, f, indent=4)
+    print(f'**************** {category_dict[0]}: {category_dict[1]} ****************', flush=True)
+    for r in all_results:
+        print(r)
 
     stats['counts'][category_dict[0]] = len(all_results)
-
     if count == 0:
         break
     count += 1
