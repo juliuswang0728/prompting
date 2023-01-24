@@ -12,7 +12,7 @@ timestamp = 1625309472.357246
 date_time = datetime.fromtimestamp(time.time())
 str_date_time = date_time.strftime("%d%m%Y-%H%M%S")
 
-openai.api_key = "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"
+openai.api_key = "xxxxx"
 imagenet_classes_json = 'map_label.json'
 
 outdir = './outputs'
@@ -56,7 +56,7 @@ def preparing_prompts():
 all_prompts = preparing_prompts()
 stats = {'counts': {}}
 
-count = 0
+image_idx = 0
 for category_dict in tqdm(category_list.items()):
     category = category_dict[1]
     if category[0] in vowel_list:
@@ -67,6 +67,8 @@ for category_dict in tqdm(category_list.items()):
     prompts = [p % (article, category) for p in all_prompts]
 
     all_results = []
+    all_results = {p: [] for p in prompts}
+    total_results = 0
     for curr_prompt in prompts:
         response = openai.Completion.create(
             engine="text-davinci-003",
@@ -80,20 +82,20 @@ for category_dict in tqdm(category_list.items()):
             result = response["text"]
             result = result.replace("\n\n", "") + "."
             if len(result) > 4:     # avoid short response
-                all_results.append(result)
+                all_results[curr_prompt].append(result)
+                total_results += 1
 
     all_responses[category_dict[0]] = all_results
-    out_subjson = os.path.join(outsubdir, f'{category_dict[0]}.json')
+    out_subjson = os.path.join(outsubdir, f'{image_idx:04d}_{category_dict[0]}_{category_dict[1]}.json')
     with open(out_subjson, 'w') as f:
         json.dump({category_dict[0]: all_results}, f, indent=4)
-    print(f'**************** {category_dict[0]}: {category_dict[1]} ****************', flush=True)
+    print(f'******** [{image_idx:04d}] {category_dict[0]}: {category_dict[1]}, n_results: {total_results} ********', flush=True)
     for r in all_results:
-        print(r)
+        for a in all_results[r]:
+            print(a)
 
-    stats['counts'][category_dict[0]] = len(all_results)
-    if count == 0:
-        break
-    count += 1
+    stats['counts'][category_dict[0]] = total_results
+    image_idx += 1
 
 print(all_responses)
 stats['#category_counts'] = len(all_responses.items())
