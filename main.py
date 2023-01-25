@@ -70,14 +70,22 @@ for category_dict in tqdm(category_list.items()):
     all_results = {p: [] for p in prompts}
     total_results = 0
     for curr_prompt in prompts:
-        response = openai.Completion.create(
-            engine="text-davinci-003",
-            prompt=curr_prompt,
-            temperature=.99,
-            max_tokens=50,
-            n=5,
-            stop="."
-        )
+        n_fails = 0
+        while n_fails < 5:
+            try:
+                response = openai.Completion.create(
+                    engine="text-davinci-003",
+                    prompt=curr_prompt,
+                    temperature=.99,
+                    max_tokens=50,
+                    n=5,
+                    stop="."
+                )
+                break
+            except:
+                print(f'Retrying "{curr_prompt}"...')
+                n_fails += 1
+
         for response in response["choices"]:
             result = response["text"]
             result = result.replace("\n\n", "") + "."
@@ -86,6 +94,7 @@ for category_dict in tqdm(category_list.items()):
                 total_results += 1
 
     all_responses[category_dict[0]] = all_results
+    category_dict[1] = '_'.join(category_dict[1].split(' '))
     out_subjson = os.path.join(outsubdir, f'{image_idx:04d}_{category_dict[0]}_{category_dict[1]}.json')
     with open(out_subjson, 'w') as f:
         json.dump({category_dict[0]: all_results}, f, indent=4)
