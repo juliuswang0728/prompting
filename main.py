@@ -12,7 +12,7 @@ timestamp = 1625309472.357246
 date_time = datetime.fromtimestamp(time.time())
 str_date_time = date_time.strftime("%d%m%Y-%H%M%S")
 
-openai.api_key = "xxx"
+openai.api_key = "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"
 imagenet_classes_json = 'map_label.json'
 
 outdir = './outputs'
@@ -43,13 +43,13 @@ def preparing_prompts():
     """
     prompts = []
     prompts.append("What colors could be seen from %s %s?")
-    prompts.append("What shapes could be seen from %s %s?")
+    '''prompts.append("What shapes could be seen from %s %s?")
     prompts.append("What textures could be seen from %s %s?")
     prompts.append("Describe visual appearances of %s %s.")
     prompts.append("Describe %s %s in a scene.")
     prompts.append("What could %s %s be seen with?")
     prompts.append("What are the activities %s %s would be associated with?")
-    prompts.append("Describe what is it like to be %s %s.")
+    prompts.append("Describe what is it like to be %s %s.")'''
 
     return prompts
 
@@ -94,11 +94,11 @@ for category_dict in tqdm(category_list.items()):
                 total_results += 1
 
     all_responses[category_dict[0]] = all_results
-    category_dict[1] = '_'.join(category_dict[1].split(' '))
-    out_subjson = os.path.join(outsubdir, f'{image_idx:04d}_{category_dict[0]}_{category_dict[1]}.json')
+    category_name = '_'.join(category_dict[1].split(' '))
+    out_subjson = os.path.join(outsubdir, f'{image_idx:04d}_{category_dict[0]}_{category_name}.json')
     with open(out_subjson, 'w') as f:
         json.dump({category_dict[0]: all_results}, f, indent=4)
-    print(f'******** [{image_idx:04d}] {category_dict[0]}: {category_dict[1]}, n_results: {total_results} ********', flush=True)
+    print(f'******** [{image_idx:04d}] {category_dict[0]}: {category_name}, n_results: {total_results} ********', flush=True)
     for r in all_results:
         print('"{r}"', flush=True)
         for a in all_results[r]:
