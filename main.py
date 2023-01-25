@@ -12,7 +12,7 @@ timestamp = 1625309472.357246
 date_time = datetime.fromtimestamp(time.time())
 str_date_time = date_time.strftime("%d%m%Y-%H%M%S")
 
-openai.api_key = "xxxxx"
+openai.api_key = "xxx"
 imagenet_classes_json = 'map_label.json'
 
 outdir = './outputs'
@@ -91,8 +91,9 @@ for category_dict in tqdm(category_list.items()):
         json.dump({category_dict[0]: all_results}, f, indent=4)
     print(f'******** [{image_idx:04d}] {category_dict[0]}: {category_dict[1]}, n_results: {total_results} ********', flush=True)
     for r in all_results:
+        print('"{r}"', flush=True)
         for a in all_results[r]:
-            print(a)
+            print('\t' + a, flush=True)
 
     stats['counts'][category_dict[0]] = total_results
     image_idx += 1
